@@ -12,6 +12,8 @@
 #include "backends/imgui_impl_opengl3.h"
 #include "imguiThemes.h"
 
+#include "game/Bird.h"
+
 #pragma region CrowFramework_Config
 /// ============================================================================
 /// CrowFramework Configuration
@@ -145,7 +147,9 @@ int main()
     /// - Initialize game state here.
     /// - Player, enemies, levels, scores, etc.
     /// ========================================================================
+    Bird bird(0.0f, 0.0f, 0.15f, 0.10f);
     
+    float prevTime = (float)glfwGetTime();
 #pragma endregion
 
 #pragma region Main_Loop
@@ -164,6 +168,10 @@ int main()
         glfwGetFramebufferSize(window, &width, &height);
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        float now = (float)glfwGetTime();
+		float dt = now - prevTime;
+		prevTime = now;
 #pragma endregion
 
 #pragma region Input_Update
@@ -171,7 +179,10 @@ int main()
         /// Input Update
         /// - Handle keyboard / mouse input here.
         /// --------------------------------------------------------------------
-        
+        if (glfwGetKey(window, GLFW_KEY_SPACE))
+        {
+            bird.Flap();
+        }
 #pragma endregion
 
 #pragma region Game_Update
@@ -180,7 +191,7 @@ int main()
         /// - Update game logic.
         /// - Movement, collision, AI, scoring, etc.
         /// --------------------------------------------------------------------
-        
+		bird.Update(dt);
 #pragma endregion
 
 #pragma region World_Render
@@ -192,8 +203,8 @@ int main()
         
         shader.Use();
         shader.SetVec3("uColor", 0.0f, 1.0f, 0.0f);
-        shader.SetVec2("uScale", 0.5f, 0.5f);
-        shader.SetVec2("uOffset", 0.0f, 0.0f);
+        shader.SetVec2("uScale", bird.GetW(), bird.GetH());
+        shader.SetVec2("uOffset", bird.GetX(), bird.GetY());
 
         glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, 6);
