@@ -13,6 +13,7 @@
 #include "imguiThemes.h"
 
 #include "game/Bird.h"
+#include "engine/AABB.h"
 
 #pragma region CrowFramework_Config
 /// ============================================================================
@@ -148,8 +149,10 @@ int main()
     /// - Player, enemies, levels, scores, etc.
     /// ========================================================================
     Bird bird(0.0f, 0.0f, 0.15f, 0.10f);
-    
+
     float prevTime = (float)glfwGetTime();
+	static bool prevSpace = false;
+
 #pragma endregion
 
 #pragma region Main_Loop
@@ -169,9 +172,9 @@ int main()
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        float now = (float)glfwGetTime();
-		float dt = now - prevTime;
-		prevTime = now;
+        float currentTime = (float)glfwGetTime();
+		float dt = currentTime - prevTime;
+		prevTime = currentTime;
 #pragma endregion
 
 #pragma region Input_Update
@@ -179,10 +182,13 @@ int main()
         /// Input Update
         /// - Handle keyboard / mouse input here.
         /// --------------------------------------------------------------------
-        if (glfwGetKey(window, GLFW_KEY_SPACE))
+        
+        bool spaceNow = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
+        if (spaceNow && !prevSpace)
         {
             bird.Flap();
         }
+		prevSpace = spaceNow;
 #pragma endregion
 
 #pragma region Game_Update
@@ -191,7 +197,20 @@ int main()
         /// - Update game logic.
         /// - Movement, collision, AI, scoring, etc.
         /// --------------------------------------------------------------------
-		bird.Update(dt);
+        AABB birdBox = bird.GetAABB();
+
+        if (birdBox.bottom < -1.0f || birdBox.top > 1.0f)
+        {
+			std::cout << "Bird out of bounds! Resetting...\n";
+        }
+        
+        float debugCx = (birdBox.left + birdBox.right) * 0.5f;
+        float debugCy = (birdBox.bottom + birdBox.top) * 0.5f;
+
+        float debugW = birdBox.right - birdBox.left;
+        float debugH = birdBox.top - birdBox.bottom;
+
+        bird.Update(dt);
 #pragma endregion
 
 #pragma region World_Render
@@ -209,6 +228,15 @@ int main()
         glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        shader.SetVec3("uColor", 1.0f, 0.0f, 0.0f);
+        shader.SetVec2("uScale", debugW, debugH);
+        shader.SetVec2("uOffset", debugCx, debugCy);
+        glBindVertexArray(vao);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 #pragma endregion
 
 #pragma region UI_Render
