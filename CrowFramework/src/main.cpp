@@ -3,9 +3,9 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
-#include <gl2d/gl2d.h>
-#include <engine/debug/openglErrorReporting.h>
-#include <engine/Shader.h>
+#include "gl2d/gl2d.h"
+#include "engine/debug/openglErrorReporting.h"
+#include "engine/graphics/Shader.h"
 
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
