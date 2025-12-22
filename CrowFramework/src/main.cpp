@@ -14,6 +14,7 @@
 
 #include "game/Bird.h"
 #include "engine/AABB.h"
+#include "game/Pipe.h"
 
 #pragma region CrowFramework_Config
 /// ============================================================================
@@ -153,6 +154,9 @@ int main()
     float prevTime = (float)glfwGetTime();
 	static bool prevSpace = false;
 
+    Pipe pipe(1.2f, 0.0f, 0.25f, 0.7f, 0.8f);
+
+
 #pragma endregion
 
 #pragma region Main_Loop
@@ -211,6 +215,10 @@ int main()
         float debugH = birdBox.top - birdBox.bottom;
 
         bird.Update(dt);
+
+        pipe.Update(dt);
+        pipe.WrapIfNeeded(-1.2f, 1.2f);
+
 #pragma endregion
 
 #pragma region World_Render
@@ -237,6 +245,15 @@ int main()
         glDrawArrays(GL_TRIANGLES, 0, 6);
 		glBindVertexArray(0);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+        shader.SetVec3("uColor", 0.2f, 0.8f, 1.0f);
+        shader.SetVec2("uScale", pipe.GetW(), pipe.GetH());
+        shader.SetVec2("uOffset", pipe.GetX(), pipe.GetY());
+
+        glBindVertexArray(vao);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
+
 #pragma endregion
 
 #pragma region UI_Render
