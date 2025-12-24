@@ -2,6 +2,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <ctime>
+#include <cstdlib>
 
 #include "gl2d/gl2d.h"
 #include "engine/debug/openglErrorReporting.h"
@@ -15,6 +17,8 @@
 #include "game/Bird.h"
 #include "engine/AABB.h"
 #include "game/Pipe.h"
+#include "game/PipePair.h"
+#include "game/FlappyGame.h"
 
 #pragma region CrowFramework_Config
 /// ============================================================================
@@ -27,7 +31,7 @@
 
 static constexpr int kDefaultWidth = 640;
 static constexpr int kDefaultHeight = 480;
-static constexpr const char* kWindowTitle = "CrowFramework Sandbox";
+static constexpr const char* kWindowTitle = "Flappy Rect";
 #pragma endregion
 
 #pragma region Platform_Callbacks
@@ -149,13 +153,14 @@ int main()
     /// - Initialize game state here.
     /// - Player, enemies, levels, scores, etc.
     /// ========================================================================
-    Bird bird(0.0f, 0.0f, 0.15f, 0.10f);
+
+    std::srand((unsigned)time(nullptr));
+
+    FlappyConfig cfg;
+    FlappyGame game(cfg);
 
     float prevTime = (float)glfwGetTime();
-	static bool prevSpace = false;
-
-    Pipe pipe(1.2f, 0.0f, 0.25f, 0.7f, 0.8f);
-
+    static bool prevSpace = false;
 
 #pragma endregion
 
@@ -190,9 +195,9 @@ int main()
         bool spaceNow = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
         if (spaceNow && !prevSpace)
         {
-            bird.Flap();
+            game.OnFlapPressed();
         }
-		prevSpace = spaceNow;
+        prevSpace = spaceNow;
 #pragma endregion
 
 #pragma region Game_Update
@@ -201,23 +206,16 @@ int main()
         /// - Update game logic.
         /// - Movement, collision, AI, scoring, etc.
         /// --------------------------------------------------------------------
-        AABB birdBox = bird.GetAABB();
 
-        if (birdBox.bottom < -1.0f || birdBox.top > 1.0f)
-        {
-			std::cout << "Bird out of bounds! Resetting...\n";
-        }
-        
-        float debugCx = (birdBox.left + birdBox.right) * 0.5f;
-        float debugCy = (birdBox.bottom + birdBox.top) * 0.5f;
-
-        float debugW = birdBox.right - birdBox.left;
-        float debugH = birdBox.top - birdBox.bottom;
-
-        bird.Update(dt);
+        /*bird.Update(dt);
 
         pipe.Update(dt);
         pipe.WrapIfNeeded(-1.2f, 1.2f);
+
+        pipes.Update(dt, -1.2f, 1.2f);*/
+
+		game.Update(dt);
+
 
 #pragma endregion
 
@@ -228,31 +226,7 @@ int main()
         /// - Do NOT update game logic in this section.
         /// --------------------------------------------------------------------
         
-        shader.Use();
-        shader.SetVec3("uColor", 0.0f, 1.0f, 0.0f);
-        shader.SetVec2("uScale", bird.GetW(), bird.GetH());
-        shader.SetVec2("uOffset", bird.GetX(), bird.GetY());
-
-        glBindVertexArray(vao);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        glBindVertexArray(0);
-
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        shader.SetVec3("uColor", 1.0f, 0.0f, 0.0f);
-        shader.SetVec2("uScale", debugW, debugH);
-        shader.SetVec2("uOffset", debugCx, debugCy);
-        glBindVertexArray(vao);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-		glBindVertexArray(0);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-        shader.SetVec3("uColor", 0.2f, 0.8f, 1.0f);
-        shader.SetVec2("uScale", pipe.GetW(), pipe.GetH());
-        shader.SetVec2("uOffset", pipe.GetX(), pipe.GetY());
-
-        glBindVertexArray(vao);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        glBindVertexArray(0);
+        game.RenderWorld(shader, vao);
 
 #pragma endregion
 

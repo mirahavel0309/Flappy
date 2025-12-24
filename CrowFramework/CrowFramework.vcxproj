@@ -171,6 +171,7 @@
     <ClCompile Include="..\dependences\imgui-docking\imgui\imgui_widgets.cpp" />
     <ClCompile Include="..\dependences\stb_image\src\stb_image.cpp" />
     <ClCompile Include="..\dependences\stb_truetype\src\stb_truetype.cpp" />
+    <ClCompile Include="src\game\PipePair.cpp" />
     <ClCompile Include="src\engine\AABB.cpp" />
     <ClCompile Include="src\game\Bird.cpp" />
     <ClCompile Include="src\game\FlappyGame.cpp" />
@@ -181,6 +182,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\engine\AABB.h" />
+    <ClInclude Include="src\game\PipePair.h" />
     <ClInclude Include="src\game\Bird.h" />
     <ClInclude Include="src\game\FlappyGame.h" />
     <ClInclude Include="include\engine\graphics\Shader.h" />

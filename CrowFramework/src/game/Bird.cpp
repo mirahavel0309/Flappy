@@ -6,6 +6,13 @@ Bird::Bird(float startX_, float startY_, float width, float height)
     w(width), h(height),
     velocityY(0.0f)
 {
+    startX = startX_;
+    startY = startY_;
+
+    w = width;
+    h = height;
+
+    Reset();
 }
 
 void Bird::Reset()

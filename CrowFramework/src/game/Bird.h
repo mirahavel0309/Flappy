@@ -27,5 +27,5 @@ private:
     float velocityY = 0.0f;
 
     const float mGravity = -1.2f;
-    const float mFlapStrength = 1.0f;
+    const float mFlapStrength = 0.5f;
 };
